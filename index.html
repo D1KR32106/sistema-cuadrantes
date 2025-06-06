@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sistema de Gestión de Cuadrantes - Policía Bolivariana de Venezuela</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style id="app-style">
+        :root {
+            --primary-color: #003366;
+            --secondary-color: #bf0909;
+            --accent-color: #ffd700;
+            --text-color: #333333;
+            --light-bg: #f5f5f5;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: var(--text-color);
+            background-color: #f8f9fa;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .intro-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-logo {
+            display: block;
+            max-width: 180px;
+            margin: 0 auto 1.5rem auto;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-results {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .search-result {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-result:last-child {
+            border-bottom: none;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .list-section {
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .confirmation-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .show-toast {
+            opacity: 1;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .pagination-button {
+            padding: 0.5rem 1rem;
+            background-color: var(--light-bg);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .pagination-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .fade-out {
+            animation: fadeOut 1s forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.5s;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .slide-down {
+            animation: slideDown 0.3s forwards;
+        }
+        
+        @keyframes slideDown {
+            from { max-height: 0; opacity: 0; }
+            to { max-height: 500px; opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Animation -->
+    <div id="intro-animation" class="intro-animation">
+        <div class="logo-container">
+            <!-- Replace shield emoji with police car emoji -->
+            <div class="h-24 mb-4 w-24 bg-blue-700 border-2 border-blue-900 rounded-md shadow-md flex justify-center items-center">
+                <span style="font-size: 2.5rem;">🚨</span>
+            </div>
+        </div>
+        <h1 class="text-2xl font-bold text-center mb-2">Policía Bolivariana</h1>
+        <p class="text-center mb-4">Sistema de Gestión de Cuadrantes</p>
+        <div class="mt-4">
+            <div class="w-16 h-1 bg-blue-600 rounded-full animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 hidden">
+        <div class="login-container">
+            <!-- Replace shield emoji with police car emoji -->
+            <div class="login-logo mx-auto w-32 h-32 bg-blue-700 border-2 border-blue-900 rounded-md shadow-md flex justify-center items-center">
+                <span style="font-size: 3.5rem;">🚨</span>
+            </div>
+            <h2 class="text-xl font-bold text-center mb-6">Sistema de Gestión de Cuadrantes</h2>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="usuario" class="block text-sm font-medium mb-1">Usuario</label>
+                    <input type="text" id="usuario" name="usuario" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label for="clave" class="block text-sm font-medium mb-1">Clave</label>
+                    <input type="password" id="clave" name="clave" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-blue-700 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Iniciar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="hidden">
+        <nav class="navbar">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <!-- Replace the image with a simple div placeholder -->
+                    <div class="h-10 mr-3 w-10 bg-blue-700 border border-blue-900 rounded-md"></div>
+                    <h1 class="text-xl font-bold">Sistema de Gestión de Cuadrantes</h1>
+                </div>
+                <div>
+                    <button id="logout-button" class="text-white hover:text-gray-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Salir
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-container">
+            <div class="search-container">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Buscar por número de cuadrante, dirección, municipio, parroquia, zona o punto de referencia..."
+                           class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div id="search-suggestions" class="absolute w-full bg-white mt-1 rounded-md shadow-lg z-10 hidden">
+                    <!-- Autocomplete suggestions will be rendered here -->
+                </div>
+            </div>
+
+            <div id="search-results" class="search-results hidden">
+                <!-- Search results will be rendered here -->
+            </div>
+
+            <div class="action-buttons">
+                <button id="btn-register" class="flex-1 bg-blue-700 text-white font-medium py-3 px-4 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <i class="fas fa-plus-circle mr-2"></i> Registrar Nuevo Cuadrante
+                </button>
+                <button id="btn-manage" class="flex-1 bg-gray-700 text-white font-medium py-3 px-4 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    <i class="fas fa-cog mr-2"></i> Administrar Cuadrantes
+                </button>
+            </div>
+
+            <div id="manage-quadrants" class="hidden">
+                <div class="flex justify-between mb-4">
+                    <h2 class="text-xl font-bold">Administrar Cuadrantes</h2>
+                    <button id="btn-back-to-search" class="text-blue-700 hover:text-blue-900">
+                        <i class="fas fa-arrow-left mr-1"></i> Volver
+                    </button>
+                </div>
+                
+                <div class="bg-white rounded-md shadow-md p-4">
+                    <div id="quadrants-list">
+                        <!-- Quadrant list will be rendered here -->
+                    </div>
+                    
+                    <div id="pagination" class="pagination">
+                        <!-- Pagination will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Modal for New/Edit Quadrant -->
+    <div id="quadrant-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title" class="text-lg font-bold">Registrar Nuevo Cuadrante</h3>
+                <button id="btn-close-modal" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="quadrant-form">
+                    <input type="hidden" id="form-quadrant-id">
+                    
+                    <div class="form-group">
+                        <label for="quadrant-number" class="block text-sm font-medium mb-1">Número de Cuadrante</label>
+                        <input type="text" id="quadrant-number" name="quadrant-number" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quadrant-phone" class="block text-sm font-medium mb-1">Teléfono</label>
+                        <input type="tel" id="quadrant-phone" name="quadrant-phone" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label for="quadrant-municipality" class="block text-sm font-medium mb-1">Municipio</label>
+                            <input type="text" id="quadrant-municipality" name="quadrant-municipality" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quadrant-parish" class="block text-sm font-medium mb-1">Parroquia</label>
+                            <input type="text" id="quadrant-parish" name="quadrant-parish" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="list-section">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-medium">Zonas</h4>
+                            <button type="button" id="btn-add-zone" class="text-blue-700 hover:text-blue-900">
+                                <i class="fas fa-plus-circle"></i> Agregar Zona
+                            </button>
+                        </div>
+                        
+                        <div id="zones-container">
+                            <div class="list-item">
+                                <input type="text" name="zones[]" placeholder="Nombre de la zona" 
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="button" class="btn-remove-zone text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-section">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-medium">Puntos de Referencia</h4>
+                            <button type="button" id="btn-add-reference" class="text-blue-700 hover:text-blue-900">
+                                <i class="fas fa-plus-circle"></i> Agregar Punto de Referencia
+                            </button>
+                        </div>
+                        
+                        <div id="references-container">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                                <input type="text" name="reference-names[]" placeholder="Nombre del punto" 
+                                       class="col-span-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="url" name="reference-urls[]" placeholder="URL de Google Maps (opcional)" 
+                                       class="col-span-1 md:col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="button" class="btn-remove-reference text-red-600 hover:text-red-800 absolute right-2 mt-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-6 space-x-3">
+                        <button type="button" id="btn-cancel-form" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-save-quadrant" class="px-4 py-2 bg-blue-700 text-white font-medium rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal hidden">
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-lg font-bold">Confirmar Eliminación</h3>
+                <button id="btn-close-confirmation" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-4">¿Está seguro de que desea eliminar este cuadrante? Esta acción no se puede deshacer.</p>
+                <div class="flex justify-end space-x-3">
+                    <button id="btn-cancel-delete" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        Cancelar
+                    </button>
+                    <button id="btn-confirm-delete" class="px-4 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="confirmation-toast" class="confirmation-toast">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toast-message">Operación completada con éxito</span>
+        </div>
+    </div>
+
+    <script id="app-script">
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intro animation and transitions
+            setTimeout(() => {
+                document.getElementById('intro-animation').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('intro-animation').classList.add('hidden');
+                    document.getElementById('login-screen').classList.remove('hidden');
+                    document.getElementById('login-screen').classList.add('bounce-in');
+                }, 1000);
+            }, 2500);
+            
+            // Login form submission
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('usuario').value;
+                const password = document.getElementById('clave').value;
+                
+                // Basic validation
+                if (username && password) {
+                    // Simulating successful login
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    loadInitialData();
+                }
+            });
+            
+            // Logout button
+            document.getElementById('logout-button').addEventListener('click', function() {
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('usuario').value = '';
+                document.getElementById('clave').value = '';
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            const searchSuggestions = document.getElementById('search-suggestions');
+            const searchResults = document.getElementById('search-results');
+            
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length >= 2) {
+                    // Show search suggestions
+                    showSearchSuggestions(query);
+                } else {
+                    searchSuggestions.classList.add('hidden');
+                    searchResults.classList.add('hidden');
+                }
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(this.value.trim());
+                }
+            });
+            
+            // Register button
+            document.getElementById('btn-register').addEventListener('click', function() {
+                openQuadrantModal('new');
+            });
+            
+            // Manage button
+            document.getElementById('btn-manage').addEventListener('click', function() {
+                document.getElementById('search-results').classList.add('hidden');
+                document.getElementById('manage-quadrants').classList.remove('hidden');
+                loadQuadrantsList();
+            });
+            
+            // Back to search button
+            document.getElementById('btn-back-to-search').addEventListener('click', function() {
+                document.getElementById('manage-quadrants').classList.add('hidden');
+            });
+            
+            // Modal close buttons
+            document.getElementById('btn-close-modal').addEventListener('click', function() {
+                document.getElementById('quadrant-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('btn-cancel-form').addEventListener('click', function() {
+                document.getElementById('quadrant-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('btn-close-confirmation').addEventListener('click', function() {
+                document.getElementById('confirmation-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('btn-cancel-delete').addEventListener('click', function() {
+                document.getElementById('confirmation-modal').classList.add('hidden');
+            });
+            
+            // Add zone button
+            document.getElementById('btn-add-zone').addEventListener('click', function() {
+                addZoneField();
+            });
+            
+            // Add reference button
+            document.getElementById('btn-add-reference').addEventListener('click', function() {
+                addReferenceField();
+            });
+            
+            // Remove buttons for dynamic fields (using event delegation)
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.btn-remove-zone')) {
+                    const item = e.target.closest('.list-item');
+                    if (document.querySelectorAll('#zones-container .list-item').length > 1) {
+                        item.remove();
+                    }
+                }
+                
+                if (e.target.closest('.btn-remove-reference')) {
+                    const item = e.target.closest('.grid');
+                    if (document.querySelectorAll('#references-container .grid').length > 1) {
+                        item.remove();
+                    }
+                }
+            });
+            
+            // Form submission
+            document.getElementById('quadrant-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveQuadrant();
+            });
+            
+            // Initialize data
+            function loadInitialData() {
+                // Check if localStorage has any stored quadrants
+                if (!localStorage.getItem('quadrants')) {
+                    // Initialize empty array if none exists
+                    localStorage.setItem('quadrants', JSON.stringify([]));
+                }
+            }
+            
+            // Search functionality
+            function showSearchSuggestions(query) {
+                const quadrants = JSON.parse(localStorage.getItem('quadrants') || '[]');
+                const filteredResults = searchQuadrants(quadrants, query);
+                
+                if (filteredResults.length > 0) {
+                    searchSuggestions.innerHTML = '';
+                    
+                    filteredResults.slice(0, 5).forEach(quadrant => {
+                        const div = document.createElement('div');
+                        div.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                        div.textContent = `Cuadrante ${quadrant.number} - ${quadrant.municipality}, ${quadrant.parish}`;
+                        div.addEventListener('click', function() {
+                            searchInput.value = `Cuadrante ${quadrant.number}`;
+                            searchSuggestions.classList.add('hidden');
+                            performSearch(quadrant.number);
+                        });
+                        searchSuggestions.appendChild(div);
+                    });
+                    
+                    searchSuggestions.classList.remove('hidden');
+                } else {
+                    searchSuggestions.classList.add('hidden');
+                }
+            }
+            
+            function performSearch(query) {
+                const quadrants = JSON.parse(localStorage.getItem('quadrants') || '[]');
+                const results = searchQuadrants(quadrants, query);
+                
+                if (results.length > 0) {
+                    displaySearchResults(results);
+                } else {
+                    searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">No se encontraron resultados para esta búsqueda.</div>';
+                    searchResults.classList.remove('hidden');
+                }
+                
+                searchSuggestions.classList.add('hidden');
+            }
+            
+            function searchQuadrants(quadrants, query) {
+                query = query.toLowerCase();
+                return quadrants.filter(quadrant => {
+                    // Search in basic info
+                    if (
+                        quadrant.number.toLowerCase().includes(query) ||
+                        quadrant.municipality.toLowerCase().includes(query) ||
+                        quadrant.parish.toLowerCase().includes(query) ||
+                        quadrant.phone.includes(query)
+                    ) {
+                        return true;
+                    }
+                    
+                    // Search in zones
+                    if (quadrant.zones.some(zone => zone.toLowerCase().includes(query))) {
+                        return true;
+                    }
+                    
+                    // Search in reference points
+                    if (quadrant.referencePoints.some(ref => ref.name.toLowerCase().includes(query))) {
+                        return true;
+                    }
+                    
+                    return false;
+                });
+            }
+            
+            function displaySearchResults(results) {
+                searchResults.innerHTML = '';
+                
+                results.forEach(quadrant => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'search-result';
+                    
+                    // Basic info
+                    resultDiv.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold">Cuadrante ${quadrant.number}</h3>
+                                <p>Teléfono: ${quadrant.phone}</p>
+                                <p>Municipio: ${quadrant.municipality} - Parroquia: ${quadrant.parish}</p>
+                            </div>
+                            <button class="toggle-details text-blue-700 hover:text-blue-900 text-sm font-medium">
+                                Ver más información
+                            </button>
+                        </div>
+                        <div class="details-container mt-3 hidden">
+                            <h4 class="font-medium mt-2">Zonas:</h4>
+                            <ul class="list-disc pl-5 mb-2">
+                                ${quadrant.zones.map(zone => `<li>${zone}</li>`).join('')}
+                            </ul>
+                            
+                            <h4 class="font-medium mt-2">Puntos de Referencia:</h4>
+                            <ul class="list-disc pl-5">
+                                ${quadrant.referencePoints.map(ref => `
+                                    <li class="flex items-center">
+                                        ${ref.name}
+                                        ${ref.url ? `
+                                            <a href="${ref.url}" target="_blank" class="ml-2 text-blue-700 hover:text-blue-900">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </a>
+                                        ` : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    // Add event listener to toggle details
+                    const toggleButton = resultDiv.querySelector('.toggle-details');
+                    const detailsContainer = resultDiv.querySelector('.details-container');
+                    
+                    toggleButton.addEventListener('click', function() {
+                        detailsContainer.classList.toggle('hidden');
+                        detailsContainer.classList.toggle('slide-down');
+                        toggleButton.textContent = detailsContainer.classList.contains('hidden') ? 'Ver más información' : 'Ocultar información';
+                    });
+                    
+                    searchResults.appendChild(resultDiv);
+                });
+                
+                searchResults.classList.remove('hidden');
+            }
+            
+            // Modal functions
+            function openQuadrantModal(mode, quadrantId) {
+                const modalTitle = document.getElementById('modal-title');
+                const form = document.getElementById('quadrant-form');
+                
+                // Reset form
+                form.reset();
+                document.getElementById('zones-container').innerHTML = '';
+                document.getElementById('references-container').innerHTML = '';
+                
+                // Add initial empty fields
+                addZoneField();
+                addReferenceField();
+                
+                if (mode === 'edit' && quadrantId) {
+                    modalTitle.textContent = 'Editar Cuadrante';
+                    
+                    // Populate form with existing data
+                    const quadrants = JSON.parse(localStorage.getItem('quadrants') || '[]');
+                    const quadrant = quadrants.find(q => q.id === quadrantId);
+                    
+                    if (quadrant) {
+                        document.getElementById('form-quadrant-id').value = quadrant.id;
+                        document.getElementById('quadrant-number').value = quadrant.number;
+                        document.getElementById('quadrant-phone').value = quadrant.phone;
+                        document.getElementById('quadrant-municipality').value = quadrant.municipality;
+                        document.getElementById('quadrant-parish').value = quadrant.parish;
+                        
+                        // Populate zones
+                        document.getElementById('zones-container').innerHTML = '';
+                        quadrant.zones.forEach(zone => {
+                            const zoneItem = document.createElement('div');
+                            zoneItem.className = 'list-item';
+                            zoneItem.innerHTML = `
+                                <input type="text" name="zones[]" value="${zone}" placeholder="Nombre de la zona" 
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="button" class="btn-remove-zone text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                            document.getElementById('zones-container').appendChild(zoneItem);
+                        });
+                        
+                        // Populate reference points
+                        document.getElementById('references-container').innerHTML = '';
+                        quadrant.referencePoints.forEach(ref => {
+                            const refItem = document.createElement('div');
+                            refItem.className = 'grid grid-cols-1 md:grid-cols-3 gap-2 mb-2';
+                            refItem.innerHTML = `
+                                <input type="text" name="reference-names[]" value="${ref.name}" placeholder="Nombre del punto" 
+                                       class="col-span-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="url" name="reference-urls[]" value="${ref.url || ''}" placeholder="URL de Google Maps (opcional)" 
+                                       class="col-span-1 md:col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="button" class="btn-remove-reference text-red-600 hover:text-red-800 absolute right-2 mt-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `;
+                            document.getElementById('references-container').appendChild(refItem);
+                        });
+                    }
+                } else {
+                    modalTitle.textContent = 'Registrar Nuevo Cuadrante';
+                    document.getElementById('form-quadrant-id').value = '';
+                }
+                
+                document.getElementById('quadrant-modal').classList.remove('hidden');
+            }
+            
+            function addZoneField() {
+                const zoneItem = document.createElement('div');
+                zoneItem.className = 'list-item';
+                zoneItem.innerHTML = `
+                    <input type="text" name="zones[]" placeholder="Nombre de la zona" 
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="button" class="btn-remove-zone text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                document.getElementById('zones-container').appendChild(zoneItem);
+            }
+            
+            function addReferenceField() {
+                const refItem = document.createElement('div');
+                refItem.className = 'grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 relative';
+                refItem.innerHTML = `
+                    <input type="text" name="reference-names[]" placeholder="Nombre del punto" 
+                           class="col-span-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="url" name="reference-urls[]" placeholder="URL de Google Maps (opcional)" 
+                           class="col-span-1 md:col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="button" class="btn-remove-reference text-red-600 hover:text-red-800 absolute right-2 mt-2">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                document.getElementById('references-container').appendChild(refItem);
+            }
+            
+            function saveQuadrant() {
+                const form = document.getElementById('quadrant-form');
+                const id = document.getElementById('form-quadrant-id').value || Date.now().toString();
+                const number = document.getElementById('quadrant-number').value;
+                const phone = document.getElementById('quadrant-phone').value;
+                const municipality = document.getElementById('quadrant-municipality').value;
+                const parish = document.getElementById('quadrant-parish').value;
+                
+                // Get zones
+                const zoneInputs = form.querySelectorAll('input[name="zones[]"]');
+                const zones = Array.from(zoneInputs).map(input => input.value).filter(Boolean);
+                
+                // Get reference points
+                const refNameInputs = form.querySelectorAll('input[name="reference-names[]"]');
+                const refUrlInputs = form.querySelectorAll('input[name="reference-urls[]"]');
+                
+                const referencePoints = [];
+                for (let i = 0; i < refNameInputs.length; i++) {
+                    const name = refNameInputs[i].value.trim();
+                    const url = refUrlInputs[i].value.trim();
+                    
+                    if (name) {
+                        referencePoints.push({ name, url });
+                    }
+                }
+                
+                // Create or update quadrant object
+                const quadrant = {
+                    id,
+                    number,
+                    phone,
+                    municipality,
+                    parish,
+                    zones,
+                    referencePoints
+                };
+                
+                // Save to localStorage
+                const quadrants = JSON.parse(localStorage.getItem('quadrants') || '[]');
+                
+                const existingIndex = quadrants.findIndex(q => q.id === id);
+                if (existingIndex >= 0) {
+                    quadrants[existingIndex] = quadrant;
+                } else {
+                    quadrants.push(quadrant);
+                }
+                
+                localStorage.setItem('quadrants', JSON.stringify(quadrants));
+                
+                // Close modal and show success message
+                document.getElementById('quadrant-modal').classList.add('hidden');
+                showToast('Cuadrante guardado exitosamente');
+                
+                // Refresh lists if needed
+                if (document.getElementById('manage-quadrants').classList.contains('hidden') === false) {
+                    loadQuadrantsList();
+                }
+            }
+            
+            function showToast(message) {
+                const toast = document.getElementById('confirmation-toast');
+                document.getElementById('toast-message').textContent = message;
+                
+                toast.classList.add('show-toast');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show-toast');
+                }, 3000);
+            }
+            
+            // Quadrant management functions
+            function loadQuadrantsList() {
+                const quadrants = JSON.parse(localStorage.getItem('quadrants') || '[]');
+                const container = document.getElementById('quadrants-list');
+                
+                if (quadrants.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-500 py-4">No hay cuadrantes registrados.</p>';
+                    document.getElementById('pagination').classList.add('hidden');
+                    return;
+                }
+                
+                // For simplicity, we'll show all quadrants without pagination in this prototype
+                container.innerHTML = '';
+                
+                quadrants.forEach(quadrant => {
+                    const item = document.createElement('div');
+                    item.className = 'border-b border-gray-200 py-3 flex justify-between items-center';
+                    item.innerHTML = `
+                        <div>
+                            <h3 class="font-medium">Cuadrante ${quadrant.number}</h3>
+                            <p class="text-sm text-gray-600">${quadrant.municipality}, ${quadrant.parish}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="btn-edit-quadrant text-blue-700 hover:text-blue-900" data-id="${quadrant.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete-quadrant text-red-600 hover:text-red-800" data-id="${quadrant.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+                
+                // Add event listeners to edit and delete buttons
+                document.querySelectorAll('.btn-edit-quadrant').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const quadrantId = this.getAttribute('data-id');
+                        openQuadrantModal('edit', quadrantId);
+                    });
+                });
+                
+                document.querySelectorAll('.btn-delete-quadrant').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const quadrantId = this.getAttribute('data-id');
+                        openDeleteConfirmation(quadrantId);
+                    });
+                });
+                
+                // Simple pagination (just for UI demonstration)
+                const paginationDiv = document.getElementById('pagination');
+                paginationDiv.innerHTML = '';
+                
+                if (quadrants.length > 10) {
+                    for (let i = 1; i <= Math.ceil(quadrants.length / 10); i++) {
+                        const btn = document.createElement('div');
+                        btn.className = `pagination-button ${i === 1 ? 'active' : ''}`;
+                        btn.textContent = i;
+                        paginationDiv.appendChild(btn);
+                    }
+                    paginationDiv.classList.remove('hidden');
+                } else {
+                    paginationDiv.classList.add('hidden');
+                }
+            }
+            
+            function openDeleteConfirmation(quadrantId) {
+                document.getElementById('confirmation-modal').classList.remove('hidden');
+                
+                // Add event listener to confirm button
+                const confirmButton = document.getElementById('btn-confirm-delete');
+                
+                // Remove any existing listeners to prevent duplicates
+                const newConfirmButton = confirmButton.cloneNode(true);
+                confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
+                
+                newConfirmButton.addEventListener('click', function() {
+                    deleteQuadrant(quadrantId);
+                    document.getElementById('confirmation-modal').classList.add('hidden');
+                });
+            }
+            
+            function deleteQuadrant(quadrantId) {
+                const quadrants = JSON.parse(localStorage.getItem('quadrants') || '[]');
+                const updatedQuadrants = quadrants.filter(q => q.id !== quadrantId);
+                
+                localStorage.setItem('quadrants', JSON.stringify(updatedQuadrants));
+                showToast('Cuadrante eliminado exitosamente');
+                loadQuadrantsList();
+            }
+        });
+    </script>
+</body>
+</html>
