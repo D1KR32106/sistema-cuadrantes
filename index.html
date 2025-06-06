@@ -592,18 +592,17 @@
                 // Check if localStorage has any stored quadrants
                 if (!localStorage.getItem('quadrants')) {
                     // Prepopulate with initial quadrant data instead of empty array
-                    const initialQuadrants = [
-                        {
-                            id: Date.now().toString(),
-                            number: "P-10",
-                            phone: "04127482842",
-                            municipality: "Valencia",
-                            parish: "Candelaria",
-                            zones: [
-                                "URB. LA GUACAMAYA I", "BARRIO", "CENTRAL", "BARRIO ATLAS", "BARRIO LOS", 
-                                "AGUACATES", "URB. MATA RICA", "BARRIO EL", "CEMENTERIO)", "HOSPITAL CENTRAL", 
-                                "BARRIO CENTRAL", "I", "BARRIO CENTRAL II", "BARRIO LA GUACAMAYA", 
-                                "ILBARRIO EL CALVARIO", "BARRIO LOS CAIMITOS", "BAR2842"
+                    const initialQuadrants = [{
+                        id: Date.now().toString(),
+                        number: "P-10",
+                        phone: "04127482842",
+                        municipality: "Valencia",
+                        parish: "Candelaria",
+                        zones: [
+                            "URB. LA GUACAMAYA I", "BARRIO", "CENTRAL", "BARRIO ATLAS", "BARRIO LOS", 
+                            "AGUACATES", "URB. MATA RICA", "BARRIO EL", "CEMENTERIO)", "HOSPITAL CENTRAL", 
+                            "BARRIO CENTRAL", "I", "BARRIO CENTRAL II", "BARRIO LA GUACAMAYA", 
+                            "ILBARRIO EL CALVARIO", "BARRIO LOS CAIMITOS", "BAR2842"
                             ],
                             referencePoints: [
                                 { name: "AV. Central", url: "" },
